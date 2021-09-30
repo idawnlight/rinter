@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [ x86_64-unknown-linux-musl ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Rust
+        uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: stable
+          targets: ${{ matrix.target }}
+      - name: Install Musl
+        if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
+        run: |
+          sudo apt-get install -y musl-tools
+          cat << 'EOF' | sudo tee /usr/bin/cross
+          #!/bin/sh
+          cargo $@
+          EOF
+          sudo chmod +x /usr/bin/cross
+      - name: Install Cross
+        if: ${{ matrix.target != 'x86_64-unknown-linux-musl' }}
+        run: cargo install cross
+      - name: Build
+        run: |
+          cross build --release --target=${{ matrix.target }}
+          mv ./target/${{ matrix.target }}/release/rinter rinter-${{ matrix.target }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: rinter-${{ matrix.target }}
+          path: rinter-${{ matrix.target }}
