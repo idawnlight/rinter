@@ -22,7 +22,7 @@ jobs:
       - name: Install Musl
         if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
         run: |
-          sudo apt-get install -y musl-tools
+          sudo apt-get install -y musl-tools libssl-dev
           cat << 'EOF' | sudo tee /usr/bin/cross
           #!/bin/sh
           cargo $@
