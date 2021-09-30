@@ -1033,7 +1033,6 @@ dependencies = [
 name = "rinter"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "log",
  "openssl",
  "pretty_env_logger",
