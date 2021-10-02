@@ -30,7 +30,7 @@ async fn handler(message: UpdateWithCx<Bot, Message>)
     log::info!("Deleting message...");
     message.requester.delete_message(message.update.chat.id, message.update.id).send().await?;
     for user in message.update.new_chat_members().unwrap() {
-        log::info!("{}", format!("Kicking member , {}, {}, @{}",
+        log::info!("{}", format!("Kicking member, {}, {}, @{}",
             user.id, user.first_name, user.username.as_deref().unwrap_or_else(|| "[]")));
         message.requester.ban_chat_member(message.update.chat.id, user.id).send().await?;
         message.requester.unban_chat_member(message.update.chat.id, user.id).send().await?;

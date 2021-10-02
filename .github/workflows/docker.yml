@@ -1,0 +1,28 @@
+name: Docker Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v1
+      - name: docker
+        uses: jerray/publish-docker-action@master
+        with:
+          username: idawnlight
+          password: ${{ secrets.DOCKER_TOKEN }}
+          repository: idawnlight/rinter
+          cache: idawnlight/rinter
+          auto_tag: true
+      - name: Deploy to heroku
+        env:
+          DOCKER_TAG: ${{ steps.docker.outputs.tag }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku container:login
+          docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+          docker tag $DOCKER_TAG registry.heroku.com/rinter/worker
+          docker push registry.heroku.com/rinter/worker
+          heroku container:release -a rinter worker
