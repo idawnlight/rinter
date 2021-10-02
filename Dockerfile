@@ -1,14 +1,12 @@
-FROM rust:1.55-bullseye as build
+FROM rust:1.55-slim-bullseye as build
 
 COPY ./ ./
 
 RUN cargo build --release
 
-FROM debian:bullseye-slim
+FROM rust:1.55-slim-bullseye
 
 COPY --from=build ./target/release/rinter .
-
-RUN apt-get install -y ca-certificates
 
 # set the startup command to run your binary
 CMD ["./rinter"]
